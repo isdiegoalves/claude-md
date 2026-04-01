@@ -74,14 +74,14 @@ all of it.
 Your internal tools mark file writes as successful if bytes hit disk. They
 do not check if the code compiles. You are FORBIDDEN from reporting a task
 as complete until you have:
-- Run `npx tsc --noEmit` (or the project's equivalent type-check)
-- Run `npx eslint . --quiet` (if configured)
+- Run the project's type-checker / compiler in strict mode
+- Run all configured linters
 - Run the test suite
 - Checked logs and simulated real usage where applicable
 
-If no type-checker is configured, state that explicitly instead of claiming
-success. Never say "Done!" with errors outstanding. Ask yourself: "Would a
-staff engineer approve this?"
+If no type-checker, linter, or test suite is configured, state that
+explicitly instead of claiming success. Never say "Done!" with errors
+outstanding. Ask yourself: "Would a staff engineer approve this?"
 
 ### Write Human Code
 Write code that reads like a human wrote it. No robotic comment blocks, no
