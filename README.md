@@ -14,8 +14,7 @@ correct output, and the agent has no built-in verification loop between
 editing code and reporting success.
 
 This CLAUDE.md overrides all of it. It also adds operational patterns
-that Anthropic's engineers use internally but haven't documented in one
-place: spec-based development, sub-agent execution models, file system
+that Anthropic's engineers use internally: spec-based development, sub-agent execution models, file system
 as state, prompt cache management, and self-improving error prevention.
 
 Full technical breakdown:
