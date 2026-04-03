@@ -1,99 +1,32 @@
 # File Hygiene
 
-> **Pattern:** Zero-shot Prompting | Clear constraint on file organization
+**Technique:** Zero-shot Prompting — instrução direta de manutenção preventiva para manter o projeto navegável.
 
----
+## Regra
 
-## The Principle
+Quando um arquivo ficar grande o suficiente para ser difícil de raciocinar: sugira quebrar em arquivos menores e focados.
 
-When a file gets long enough that it's hard to reason about, suggest breaking it into smaller focused files.
+Mantenha o projeto navegável.
 
-Keep the project navigable.
+## Por que isso importa
 
----
+Arquivos grandes têm dois custos: custo de contexto (mais tokens para carregar) e custo cognitivo (mais difícil de encontrar e entender a parte relevante). A navegabilidade do projeto é uma forma de context engineering — um projeto bem organizado consome menos contexto para operar.
 
-## The Threshold
+## Heurísticas de divisão
 
-**Soft limit:** 300 lines  
-**Hard limit:** 500 lines  
-**Critical:** 1000+ lines
+**Sinais de arquivo que precisa ser dividido:**
+- >400 LOC com múltiplas responsabilidades
+- Mais de um "conceito" principal exportado
+- Seções que poderiam ser lidas de forma independente
+- Imports que só são usados em metade do arquivo
 
----
+**Estratégias de divisão:**
+- Por responsabilidade (utils → utils/string.ts, utils/date.ts)
+- Por domínio (user.ts → user/model.ts, user/service.ts, user/api.ts)
+- Por tamanho de feature (auth.ts → auth/login.ts, auth/register.ts, auth/reset.ts)
 
-## Zero-Shot Application
+## Como sugerir ao usuário
 
-The directive acts as a constraint that triggers:
+> "Este arquivo está com X linhas e cobre Y responsabilidades diferentes. Quer que eu quebre em [proposta específica]? Isso reduziria o tamanho médio para ~Z linhas e tornaria [benefício específico]."
 
-1. **Recognition:** File is getting unwieldy
-2. **Suggestion:** Propose splitting
-3. **Action:** Break into focused files
-4. **Result:** Project remains navigable
-
----
-
-## Splitting Strategies
-
-### By Responsibility
-
-```
-utils.ts (500 lines)
-  ├── utils/date.ts
-  ├── utils/string.ts
-  ├── utils/validation.ts
-  └── utils/index.ts (re-exports)
-```
-
-### By Domain
-
-```
-components/
-  ├── Button/
-  │   ├── index.tsx
-  │   ├── styles.css
-  │   └── test.tsx
-  └── Card/
-      ├── index.tsx
-      ├── styles.css
-      └── test.tsx
-```
-
-### By Layer
-
-```
-services/
-  ├── api/
-  │   ├── client.ts
-  │   └── endpoints.ts
-  └── business/
-      ├── validators.ts
-      └── transformers.ts
-```
-
----
-
-## The Conversation
-
-```markdown
-User: "Add feature X to this component"
-
-Agent: "This component is 600 lines. Before adding feature X,
-I'd recommend splitting it into:
-
-1. Component.tsx (UI only)
-2. useComponent.ts (logic)
-3. utils.ts (helpers)
-
-This keeps each file focused and maintainable.
-
-Should I proceed with the split first?"
-```
-
----
-
-## Remember
-
-> Large files are a form of technical debt.
->
-> Split early, split often.
->
-> Keep it navigable.
+Seja específico na proposta — "dividir em arquivos menores" é genérico demais para o usuário agir.

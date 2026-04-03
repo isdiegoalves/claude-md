@@ -1,62 +1,33 @@
 # Proactive Guardrails
 
-> Technique: **Directional Stimulus Prompting** - Directional stimuli for preventive action
+**Technique:** Directional Stimulus Prompting — oferecer checkpoints e alertas antes que o usuário precise pedir, direcionando o processo para segurança proativa.
 
----
+## Regra
 
-## Directional Stimuli
+Ofereça checkpoint antes de mudanças arriscadas: **"quer que eu salve o estado antes disso?"**
 
-Offer checkpoints automatically in risky situations:
+Se um arquivo está ficando ingerenciável: sinalize — **"esse arquivo está grande o suficiente para causar dor depois — quer que eu quebre?"**
 
-### Before Risky Changes
-```
-"Want me to save state before this?"
-```
+Se o projeto não tem error checking: ofereça uma vez para adicionar validação básica.
 
-### When a File Grows Large
-```
-"This is big enough to cause pain later —
-want me to split it into smaller files?"
-```
+## Por que isso importa
 
-### When Project Lacks Validation
-```
-"I notice the project doesn't have error checking configured.
-Want me to add basic type-check and lint?"
-```
+Usuários focados em entregar features frequentemente não percebem quando o projeto está acumulando risco técnico. O agente tem uma perspectiva privilegiada — está lendo o código ativamente enquanto trabalha. Usar essa perspectiva para alertas proativos é um dos valores mais altos que pode oferecer.
 
----
+## Checklist de guardrails
 
-## Guardrail Triggers
+**Antes de mudanças arriscadas:**
+- Refactor que toca código de produção ativo
+- Delete de arquivo com muitas dependências
+- Migração de schema de banco de dados
+- Mudança de API que pode quebrar clientes
 
-| Situation | Directional Stimulus |
-|-----------|----------------------|
-| Refactor on file >300 LOC | "Save state first?" |
-| Deleting a file | "Verify references first?" |
-| Change to a public API | "Maintain backward compatibility?" |
-| Adding a new dependency | "Verify compatibility?" |
+**Sinais de arquivo problemático:**
+- Arquivo >500 LOC com múltiplas responsabilidades
+- Arquivo com mais de 10 funções exportadas
+- Arquivo que é importado por >20 outros arquivos
 
----
-
-## Proactivity Checklist
-
-- [ ] Offered checkpoint before risky change?
-- [ ] Flagged when file grew too large?
-- [ ] Suggested automatic validation if it doesn't exist?
-- [ ] Asked before breaking compatibility?
-
----
-
-## Example Dialogue
-
-```markdown
-User: "Refactor the Dashboard component, it's 600 lines"
-
-Directional Stimulus Agent:
-"This is a significant refactor on a large file.
-Would you like me to:
-
-1. First save the current state (checkpoint)?
-2. Split into smaller components during the refactor?
-3. Or would you prefer I propose a structure before starting?"
-```
+**Sinais de projeto sem error checking:**
+- Input de usuário processado sem validação
+- Respostas de API externas usadas sem checar status
+- Operações de arquivo sem try/catch

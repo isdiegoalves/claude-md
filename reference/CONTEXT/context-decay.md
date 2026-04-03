@@ -1,90 +1,26 @@
 # Context Decay Awareness
 
-> **Pattern:** Tree of Thoughts | Branching evaluation of context validity
+**Technique:** Tree of Thoughts — considerar múltiplos caminhos possíveis de degradação de contexto antes de agir sobre um arquivo.
 
----
+## Regra
 
-## The Problem
+Após 10+ mensagens em uma conversa: **DEVE re-ler qualquer arquivo antes de editá-lo.**
 
-After 10+ messages in a conversation, context auto-compaction may have **silently destroyed** your understanding of file contents.
+Não confie na memória do conteúdo dos arquivos. Auto-compaction pode ter destruído silenciosamente esse contexto. Editar contra estado antigo produz output quebrado.
 
-You will edit against stale state and produce broken output.
+## Por que isso importa
 
----
+Auto-compaction ocorre de forma imprevisível ao redor de ~167K tokens. Quando ocorre, os detalhes de arquivos lidos cedo na sessão são perdidos — mas o agente não recebe aviso explícito. O viés é continuar com confiança. Esta regra interrompe esse viés forçando uma leitura fresca.
 
-## The Mandate
+## Sinais de context decay ativo
 
-**After 10+ messages, you MUST re-read any file before editing it.**
+- Referenciar variáveis ou funções que não existem mais
+- "Lembrar" de estrutura de arquivo que foi alterada
+- Edits que o Edit tool rejeita por não encontrar a old_string
+- Erros de compilação em código que "estava correto"
 
-Do not trust your memory of file contents.
+## Sinal de aplicação
 
----
-
-## Tree of Thoughts Evaluation
-
-```
-                    [Need to edit file?]
-                           |
-           +---------------+---------------+
-           |                               |
-     [Messages < 10]                 [Messages >= 10]
-           |                               |
-           v                               v
-    [Trust context?]              [MUST re-read]
-           |                          BEFORE editing
-     +-----+-----+
-     |           |
-     v           v
- [Simple]    [Complex]
- change      change
-   |             |
-   v             v
-[Can trust]  [Re-read to
- context]     be safe]
-```
-
----
-
-## Warning Signs
-
-| Symptom | Cause | Solution |
-|---------|-------|----------|
-| Referencing nonexistent variables | Stale context | Re-read file |
-| Wrong line numbers | Context shifted | Re-read file |
-| Forgotten file structure | Compaction | Re-read file |
-| "I'm pretty sure..." | Memory unreliable | Re-read file |
-
----
-
-## The 10-Message Rule
-
-```markdown
-## Context Decay Check
-
-Messages in conversation: [N]
-
-If N >= 10:
-- [ ] Re-read file BEFORE any edit
-- [ ] Verify line numbers
-- [ ] Check variable names
-- [ ] Confirm imports/exports
-
-Remember: Auto-compaction is silent.
-```
-
----
-
-## Best Practices
-
-1. **Re-read proactively** - Don't wait for errors
-2. **Use offset/limit** - For large files, read relevant sections
-3. **Verify after compact** - If `/compact` was run, re-read everything
-4. **Keep a checklist** - Track which files you've verified
-
----
-
-## Remember
-
-> Your memory of file contents expires at 10 messages.
->
-> Re-read or regret it.
+- 10ª mensagem ou mais na sessão
+- Antes de qualquer edit em arquivo lido antes da mensagem #5
+- Após uma compaction notificada pelo sistema

@@ -1,95 +1,24 @@
 # Demand Elegance (Balanced)
 
-> **Pattern:** Self-Consistency | Quality standards over speed
+**Technique:** Self-Consistency — gerar múltiplas abordagens e avaliar qual delas tem menor complexidade acidental antes de apresentar.
 
----
+## Regra
 
-## The Prompt
+Para mudanças não-triviais: pause e pergunte **"existe uma forma mais elegante?"**
 
-For non-trivial changes, pause and ask:
+Se uma correção parece hacky: **"sabendo tudo que sei agora, implemente a solução limpa."**
 
-> "Is there a more elegant way?"
+Pule esta verificação para correções simples e óbvias.
 
----
+**Desafie seu próprio trabalho antes de apresentá-lo.**
 
-## The Balance
+## Por que isso importa
 
-| Scenario | Approach |
-|----------|----------|
-| Simple, obvious fix | Skip - just implement |
-| Complex, hacky feeling fix | Pause and reconsider |
-| Multiple similar workarounds | Find the pattern |
-| "This feels wrong" | Trust instinct, refactor |
+A primeira solução que funciona raramente é a melhor. O agente otimiza para fazer o código funcionar — não para fazer o código ser bom. A pausa reflexiva antes de apresentar captura a diferença entre "funciona" e "está certo."
 
----
+## Sinal de aplicação
 
-## When to Demand Elegance
-
-**ACTIVATE when:**
-- Fix feels hacky or workaround-ish
-- Code requires extensive comments to explain
-- You're copying patterns that feel off
-- The solution is more complex than the problem
-
-**SKIP when:**
-- Simple, obvious fix for clear bug
-- Standard, idiomatic solution
-- Three experienced devs would write it the same way
-
----
-
-## The Process
-
-```
-1. IMPLEMENT: First solution
-2. EVALUATE: "Knowing everything I know now..."
-3. CHALLENGE: Is this elegant?
-4. REFACTOR: Implement the clean solution
-5. VERIFY: Would three senior devs write it this way?
-```
-
----
-
-## Self-Consistency Check
-
-### Before Submitting
-
-```markdown
-## Elegance Review
-
-- [ ] Is this the most straightforward solution?
-- [ ] Does it require minimal explanation?
-- [ ] Would others naturally write it this way?
-- [ ] Is the complexity proportional to the problem?
-- [ ] Could I explain this to a junior dev easily?
-
-If any are "no" → consider a cleaner approach.
-```
-
----
-
-## Examples
-
-### ❌ Hacky
-```typescript
-// Workaround with nested conditionals
-if (data && data.items && data.items.length > 0 && data.items[0].name) {
-  // ...
-}
-```
-
-### ✅ Elegant
-```typescript
-// Clean with optional chaining and early return
-const firstName = data?.items?.[0]?.name;
-if (!firstName) return null;
-// ...
-```
-
----
-
-## Remember
-
-> Elegance is not about cleverness.
->
-> It's about clarity, simplicity, and maintainability.
+- Fix que adiciona condicionais especiais ou casos de borda improváveis
+- Solução que requer explicação longa para justificar a estrutura escolhida
+- Código que você teria dificuldade de defender em code review
+- Qualquer mudança que parece "temporária" mas está prestes a ser commitada

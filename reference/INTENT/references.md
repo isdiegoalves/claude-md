@@ -1,85 +1,22 @@
 # Follow References, Not Descriptions
 
-> Technique: **Few-shot Prompting** - Learning from examples/references
+**Technique:** Few-shot Prompting — o código existente do usuário é o conjunto de exemplos (shots) mais confiável disponível. Estudá-lo antes de construir é usar few-shot implícito.
 
----
+## Regra
 
-## The Principle
+Quando o usuário aponta para código existente como referência:
+1. Estude-o completamente antes de construir
+2. Identifique os padrões: nomenclatura, estrutura, estilo, abstrações usadas
+3. Replique esses padrões exatamente
 
-When the user points to existing code as a reference:
-1. **Study thoroughly** before building
-2. **Match patterns exactly** - don't reinvent
-3. **Working code > English description**
+O código funcionando do usuário é uma spec melhor do que a descrição em inglês dele.
 
----
+## Por que isso importa
 
-## Few-shot via Reference
+Descrições em linguagem natural são ambíguas. Código é preciso. Um componente existente mostra exatamente como o usuário quer tratar erros, nomear variáveis, estruturar props — sem ambiguidade. Ignorar essa referência é a principal causa de "esse não é o estilo que usamos aqui."
 
-### How to Learn from Existing Code
+## Sinal de aplicação
 
-```typescript
-// EXAMPLE (provided reference):
-// Existing UserService.ts
-export class UserService {
-  async getUser(id: string): Promise<User> {
-    const response = await this.api.get(`/users/${id}`);
-    return response.data;
-  }
-}
-
-// TASK: Create ProductService
-
-// ✅ CORRECT - Follows reference pattern:
-export class ProductService {
-  async getProduct(id: string): Promise<Product> {
-    const response = await this.api.get(`/products/${id}`);
-    return response.data;
-  }
-}
-
-// ❌ WRONG - Invents a different pattern:
-export const fetchProduct = async (id: string) => {
-  return axios.get(`/api/products/${id}`);
-};
-```
-
----
-
-## Reference Checklist
-
-Before implementing:
-- [ ] Studied the reference code completely
-- [ ] Identified the patterns used
-- [ ] Noted naming conventions
-- [ ] Observed file structure
-- [ ] Replicated the patterns in the new implementation
-
----
-
-## Reference Signals
-
-| Signal | Meaning | Action |
-|--------|---------|--------|
-| "Like in [file]" | Use as model | Read and follow the pattern |
-| "Following the pattern of..." | Required consistency | Study the reference |
-| "Similar to [function]" | Controlled adaptation | Copy structure, adapt logic |
-| "In the project style" | Existing conventions | Analyze multiple examples |
-
----
-
-## Few-shot in Action Example
-
-```markdown
-User: "Create a new useAuth hook, following the useUser pattern"
-
-Few-shot Action:
-1. Read useUser.ts completely
-2. Note:
-   - Structure: export function useUser() { ... }
-   - Return: { user, loading, error }
-   - Internals: useState, useEffect, try/catch
-3. Replicate structure in useAuth.ts:
-   - export function useAuth() { ... }
-   - Return: { auth, loading, error }
-   - Same state management pattern
-```
+- Usuário diz "faça igual ao X" ou "siga o padrão do Y"
+- Existe código similar já implementado no projeto
+- Instrução menciona um arquivo ou componente específico como modelo

@@ -1,97 +1,38 @@
 # Two-Perspective Review
 
-> Technique: **Self-Consistency** - Multiple quality verification
+**Technique:** Self-Consistency — gerar múltiplas perspectivas sobre o mesmo trabalho para surface trade-offs que uma perspectiva única perderia.
 
----
+## Regra
 
-## The Two-Perspective Technique
+Ao avaliar seu próprio trabalho, apresente duas visões opostas:
+1. **O que um perfeccionista criticaria** — o que está errado, frágil ou elegante demais para ser mantido
+2. **O que um pragmatista aceitaria** — o que está correto, funciona, e é proporcional ao problema
 
-When evaluating your own work, present **two opposing views**:
+Deixe o usuário decidir qual trade-off tomar.
 
-1. **The Perfectionist's Perspective** - What would they criticize?
-2. **The Pragmatist's Perspective** - What would they accept?
+## Por que isso importa
 
----
+O agente tem viés de confirmação em relação ao próprio output — tende a defender as escolhas que fez. Apresentar deliberadamente a crítica perfeccionista força honestidade sobre as limitações da solução, e dá ao usuário informação real para tomar a decisão.
 
-## Analysis Framework
-
-### The Perfectionist's Perspective
-
-"If I were an ultra-rigorous code reviewer, what would I criticize?"
-
-- Could naming be clearer?
-- Are there unhandled edge cases?
-- Could the architecture be cleaner?
-- Could tests be more comprehensive?
-
-### The Pragmatist's Perspective
-
-"If I had a tight deadline, what actually matters?"
-
-- Does the main functionality work?
-- Did it not introduce obvious bugs?
-- Is the code maintainable enough?
-- Is documentation sufficient for the context?
-
----
-
-## Review Template
+## Formato sugerido
 
 ```markdown
-## Two-Perspective Evaluation
+**Perspectiva perfeccionista:**
+- [crítica 1]
+- [crítica 2]
+- Recomendação: [o que mudaria]
 
-### 👁️ Perfectionist's Perspective
-**Criticisms:**
-- [Point 1 that could be better]
-- [Point 2 that could be more elegant]
-- [Point 3 about architecture]
+**Perspectiva pragmatista:**
+- [aceitação 1]
+- [aceitação 2]
+- Recomendação: [por que está ok para ship]
 
-**Severity:** [Low/Medium/High]
-
-### ⚖️ Pragmatist's Perspective
-**Acceptances:**
-- Delivered functionality works correctly
-- Code doesn't introduce serious technical debt
-- Within requested scope
-
-**Acceptable Trade-offs:**
-- [What is acceptable to not be perfect]
-
-### 🎯 Recommendation
-[Which perspective should prevail in this case]
-
-**Justification:**
-[Why we are choosing this trade-off]
+**Trade-off:** [resumo em uma linha do que você está trocando]
 ```
 
----
+## Sinal de aplicação
 
-## Complete Example
-
-```markdown
-## Evaluation: CSV Export Feature
-
-### Perfectionist's Perspective
-- CSV could have more robust formatting (comma escaping)
-- Should support UTF-8 BOM encoding for Excel
-- Architecture mixes UI with export logic
-
-### Pragmatist's Perspective
-- Export works for 95% of use cases
-- Code is readable and maintainable
-- Within original scope (simple export)
-
-### Decision
-Adopt pragmatic perspective, but document future improvements.
-```
-
----
-
-## When to Use Each Perspective
-
-| Context | Perspective | Why? |
-|---------|-------------|------|
-| MVP/Prototype | Pragmatist | Speed > Perfection |
-| Core System | Perfectionist | Quality is critical |
-| Bug Fix | Pragmatist | Quick fix matters more |
-| Refactor | Perfectionist | Moment to improve |
+- Qualquer solução não trivial
+- Quando há mais de uma abordagem válida
+- Quando o usuário pediu uma revisão ou avaliação
+- Antes de apresentar uma solução que você sabe que tem compromissos

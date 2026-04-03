@@ -1,70 +1,35 @@
 # Parallel Batch Changes
 
-> Technique: **Prompt Chaining**
+**Technique:** Prompt Chaining — encadear edições em lote com verificação entre passos, usando paralelismo para eficiência sem sacrificar rastreabilidade.
 
----
+## Regra
 
-## The Principle
+Quando o mesmo edit precisa acontecer em muitos arquivos: sugira lotes paralelos via `/batch`.
 
-When the same edit needs to happen across many files, suggest **parallel batches**.
+Verifique cada mudança no contexto — edições em lote imprudentes quebram coisas silenciosamente.
 
-- Verify each change in context
-- Reckless bulk edits break things silently
-- Splitting into batches allows verification between steps
+## Por que isso importa
 
----
+Edições sequenciais em muitos arquivos acumulam context decay progressivamente. Lotes paralelos garantem que cada agente trabalha com contexto fresco e focado. A verificação por contexto (não apenas "bytes escritos") garante que cada mudança foi aplicada corretamente.
 
-## Batch Strategy
-
-### Split by Type
+## Protocolo de batch
 
 ```
-Batch A: UI components (5-8 .tsx files)
-Batch B: Services/API (5-8 .ts files)
-Batch C: Tests (5-8 .test.ts files)
+1. Identifique todos os arquivos que precisam da mudança
+2. Agrupe por dependência (arquivos independentes juntos)
+3. Para cada grupo: lance sub-agente com a lista específica
+4. Sub-agente verifica cada mudança antes de reportar
+5. Agente principal consolida resultados e verifica coerência
 ```
 
-### Split by Dependency
+## Quando usar vs. não usar batch
 
-```
-Batch 1: Interfaces and types (base)
-Batch 2: Implementations that depend on Batch 1
-Batch 3: Components that depend on Batch 2
-```
+**Use batch quando:**
+- Mesma mudança em 5+ arquivos independentes
+- Rename de símbolo em toda a codebase
+- Atualização de import path após reorganização
 
----
-
-## Batch Checklist
-
-### Before
-- [ ] Identified all affected files
-- [ ] Grouped into batches of at most 5-8 files
-- [ ] Defined dependency order between batches
-
-### During
-- [ ] Ran technical verification after each batch
-- [ ] Confirmed nothing broken from the previous batch
-- [ ] Documented changes for the next batch
-
-### After
-- [ ] Final verification across all modified files
-- [ ] Tests pass
-- [ ] Type-check clean
-
----
-
-## Example: Mass Rename
-
-**Scenario:** Rename `getUser` to `fetchUser` across 20 files
-
-```
-❌ WRONG: Edit all 20 files at once
-
-✅ CORRECT:
-  Batch 1: API layer (api/user.ts, api/client.ts)
-  Batch 2: Hooks (hooks/useUser.ts)
-  Batch 3: Components (components/User*.tsx)
-  Batch 4: Tests (*.test.ts)
-
-  [Verification between each batch]
-```
+**Não use batch quando:**
+- Mudanças têm dependências entre si (A depende de B)
+- Arquivos têm estruturas significativamente diferentes
+- Mudança requer julgamento contextual em cada arquivo

@@ -1,82 +1,28 @@
 # Spec-Based Development
 
-> **Pattern:** Chain-of-Thought Prompting | Structured reasoning before action
+**Technique:** Chain-of-Thought Prompting — entrevistar o usuário antes de escrever código força raciocínio explícito sobre requisitos, eliminando suposições que geram retrabalho.
 
----
+## Regra
 
-## When to Use
+Para features não-triviais (3+ passos ou decisões arquiteturais):
 
-**REQUIRED for:** Non-trivial features (3+ steps or architectural decisions)
+1. Entre em plan mode
+2. Use `AskUserQuestion` para entrevistar o usuário sobre:
+   - Implementação técnica
+   - UX e comportamento esperado
+   - Preocupações e restrições
+   - Trade-offs aceitáveis
+3. Escreva a spec detalhada
+4. A spec vira o contrato — execute contra ela, não contra suposições
 
-**ACTIVATE when:**
-- Feature involves multiple components
-- User asks to "make a plan" or "think about this first"
-- Architectural decisions are needed
-- Implementation approach is unclear
+**Elimine todas as suposições antes de tocar no código.**
 
----
+## Por que isso importa
 
-## The Process
+Suposições silenciosas são a principal causa de retrabalho. Uma spec de 10 minutos evita um refactor de 2 horas. O agente tem viés para iniciar rápido — esta regra corrige esse viés.
 
-### Phase 1: Discovery Interview
+## Sinal de aplicação
 
-Use the `AskUserQuestion` tool to interview the user about:
-
-| Topic | Questions to Ask |
-|-------|-----------------|
-| **Technical Implementation** | What approach? What technologies? |
-| **UX** | User flow? Edge cases? |
-| **Concerns** | Performance? Security? Maintainability? |
-| **Tradeoffs** | Speed vs quality? Short vs long term? |
-
-### Phase 2: Write the Spec
-
-The spec becomes the **contract** - execute against it, not assumptions.
-
-```markdown
-## Feature Spec: [Name]
-
-### Overview
-[Brief description]
-
-### Technical Decisions
-- [Decision 1]: [Rationale]
-- [Decision 2]: [Rationale]
-
-### Implementation Steps
-1. [Step 1 with file paths]
-2. [Step 2 with file paths]
-3. [Step 3 with file paths]
-
-### Edge Cases
-- [Case 1]: [Handling]
-- [Case 2]: [Handling]
-
-### Verification Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
-```
-
-### Phase 3: Approval
-
-Present the spec and **wait for explicit approval** before writing code.
-
----
-
-## Golden Rules
-
-1. **Strip away all assumptions** before touching code
-2. **No code until user says go** - output only the plan
-3. **Follow the spec exactly** - don't improvise if user provided a written plan
-4. **Flag real problems** - if you spot an issue, flag it and wait
-
----
-
-## Anti-Patterns
-
-| ❌ Wrong | ✅ Right |
-|----------|----------|
-| Start building from vague instructions | Interview first, spec second, code third |
-| Assume implementation details | Document decisions in spec |
-| Change the plan mid-implementation without approval | Flag issues and wait for direction |
-| Skip spec for "simple" features that span 3+ files | Always spec when complexity threshold met |
+- Feature envolve 3+ passos distintos
+- Decisão arquitetural sem precedente claro no projeto
+- Instrução do usuário admite múltiplas interpretações válidas

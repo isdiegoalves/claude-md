@@ -1,136 +1,42 @@
 # No Semantic Search
 
-> **Pattern:** Chain-of-Thought Prompting | Explicit, separate searches for comprehensive coverage
+**Technique:** Chain-of-Thought Prompting — raciocinar sistematicamente sobre todos os locais onde uma referência pode existir, não confiar em uma única busca.
 
----
+## Regra
 
-## The Constraint
+Você tem grep, não uma AST. Ao renomear ou alterar qualquer função/tipo/variável, DEVE buscar separadamente por:
 
-**You have grep, not an AST.**
+- [ ] Chamadas diretas e referências
+- [ ] Referências de tipo (interfaces, generics)
+- [ ] String literals contendo o nome
+- [ ] Dynamic imports e chamadas require()
+- [ ] Re-exports e entradas de barrel file
+- [ ] Arquivos de teste e mocks
 
-When renaming or changing any function/type/variable, you MUST search separately for multiple categories.
+**Não assuma que um único grep capturou tudo. Assuma que perdeu algo.**
 
----
+## Por que isso importa
 
-## The Multi-Search Protocol
+Ferramentas de busca por texto encontram correspondências exatas. Código real usa o mesmo nome de formas que um grep simples não detecta: como string em um switch, como tipo em um genérico, como import dinâmico, como re-export em um index.ts. Um rename "completo" com grep simples deixa referências quebradas que só aparecem em runtime.
 
-Do not assume a single grep caught everything. **Assume it missed something.**
-
-### Required Search Categories
-
-```markdown
-## Semantic Search Checklist
-
-When renaming `foo` to `bar`:
-
-### 1. Direct Calls and References
-```bash
-grep -r "foo" --include="*.ts" src/
-```
-
-### 2. Type-Level References
-```bash
-# Interfaces, generics, type annotations
-grep -r "foo:" --include="*.ts" src/
-grep -r "foo<" --include="*.ts" src/
-```
-
-### 3. String Literals
-```bash
-# Keys, property access, dynamic references
-grep -r "\"foo\"" --include="*.ts" src/
-grep -r "'foo'" --include="*.ts" src/
-```
-
-### 4. Dynamic Imports and require()
-```bash
-grep -r "require.*foo" --include="*.ts" src/
-grep -r "import.*foo" --include="*.ts" src/
-```
-
-### 5. Re-exports and Barrel Files
-```bash
-grep -r "export.*foo" --include="*.ts" src/
-grep -r "from.*foo" --include="*.ts" src/
-```
-
-### 6. Test Files and Mocks
-```bash
-grep -r "foo" --include="*.test.ts" src/
-grep -r "foo" --include="*.spec.ts" src/
-grep -r "mock.*foo" --include="*.ts" src/
-```
-```
-
----
-
-## Why Separate Searches?
-
-| Reason | Example |
-|--------|---------|
-| Grep is text-based, not AST-based | `foo()` vs `type Foo` vs `"foo"` |
-| Different contexts need different handling | Call vs Type vs String key |
-| Tests may reference differently | Mock names, spy references |
-| Barrel files re-export | `export { foo } from './module'` |
-
----
-
-## Chain-of-Thought Execution
-
-```
-1. IDENTIFY: What is being renamed/changed?
-   |
-   v
-2. PLAN: Which search categories apply?
-   |
-   v
-3. EXECUTE: Run each search separately
-   |
-   v
-4. COMPILE: Aggregate all references
-   |
-   v
-5. UPDATE: Modify all occurrences
-   |
-   v
-6. VERIFY: Re-run searches to confirm zero results
-```
-
----
-
-## Example: Complete Rename Workflow
+## Checklist de busca para rename
 
 ```bash
-# Renaming function processData to transformData
+# 1. Uso direto
+grep -r "nomeFuncao" src/
 
-# 1. Direct calls
-grep -r "processData" --include="*.ts" src/ | grep -v "transformData"
+# 2. Como tipo
+grep -r "typeof nomeFuncao\|: NomeFuncao" src/
 
-# 2. Type annotations
-grep -r "processData:" --include="*.ts" src/
-grep -r "processData<" --include="*.ts" src/
+# 3. Como string
+grep -r '"nomeFuncao"\|'"'nomeFuncao'" src/
 
-# 3. String references (if any)
-grep -r "\"processData\"" --include="*.ts" src/
+# 4. Import dinâmico
+grep -r "import.*nomeFuncao\|require.*nomeFuncao" src/
 
-# 4. Imports
-grep -r "import.*processData" --include="*.ts" src/
+# 5. Re-exports
+grep -r "export.*nomeFuncao" src/
 
-# 5. Exports
-grep -r "export.*processData" --include="*.ts" src/
-
-# 6. Tests
-grep -r "processData" --include="*.test.ts" src/
-
-# After all edits, verify:
-grep -r "processData" --include="*.ts" src/ | wc -l
-# Should be 0 (or only in comments if intentionally kept)
+# 6. Testes
+grep -r "nomeFuncao" tests/ __tests__/ *.test.*
 ```
-
----
-
-## Remember
-
-> One grep = incomplete picture.
->
-> Six greps = confidence.

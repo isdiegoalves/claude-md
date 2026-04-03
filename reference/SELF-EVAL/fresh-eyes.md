@@ -1,108 +1,35 @@
 # Fresh Eyes Pass
 
-> **Pattern:** Few-shot Prompting | Persona-based evaluation
+**Technique:** Few-shot Prompting — adotar a persona de um usuário novo como "exemplo" de perspectiva externa, capturando o que o builder-brain perderia.
 
----
+## Regra
 
-## The Technique
+Quando pedido para testar o próprio output: adote a persona de novo usuário.
 
-When asked to test your own output:
+Percorra a feature como se nunca tivesse visto o projeto. Sinalize:
+- Qualquer coisa confusa
+- Qualquer fricção
+- Qualquer coisa pouco clara
 
-**Adopt a new-user persona.**
+Isso captura o que o builder-brain perde.
 
-Walk through the feature as if you've never seen the project.
+## Por que isso importa
 
----
+Quem construiu algo tem conhecimento prévio que os usuários reais não têm. Esse conhecimento torna invisíveis as falhas de UX e as lacunas de documentação. A persona de "novo usuário" força o agente a se comportar como someone who doesn't know the shortcuts, the expected paths, or the context behind decisions.
 
-## The Persona
-
-```
-┌──────────────────────────────────────┐
-│  NEW USER PERSONA                    │
-│                                      │
-│  • Never seen the codebase           │
-│  • Doesn't know conventions          │
-│  • Has basic domain knowledge        │
-│  • Wants to accomplish a task        │
-│  • Gets confused easily              │
-└──────────────────────────────────────┘
-```
-
----
-
-## What to Flag
-
-| Category | Examples |
-|----------|----------|
-| **Confusing** | Unclear error messages, ambiguous naming |
-| **Friction-Heavy** | Too many steps, unnecessary complexity |
-| **Unclear** | Missing documentation, implicit requirements |
-| **Inconsistent** | Different patterns than rest of codebase |
-| **Unexpected** | Behavior that violates conventions |
-
----
-
-## Few-Shot Application
-
-The persona provides **reference points** (few-shot examples):
+## Checklist da persona de novo usuário
 
 ```
-"As a new user, I would expect..."
-"A new user might be confused by..."
-"If I hadn't built this, I would wonder..."
+□ Consigo entender o que esta feature faz só pelo que está visível?
+□ O erro message me diz o que fazer a seguir?
+□ O fluxo de onboarding tem algum passo que requer conhecimento prévio?
+□ Algum estado de UI pode ser ambíguo (carregando? erro? vazio intencional)?
+□ Os labels e títulos fazem sentido fora do contexto do desenvolvimento?
+□ Existe algum caminho que leva a um estado sem saída clara?
 ```
 
----
+## Sinal de aplicação
 
-## The Checklist
-
-```markdown
-## Fresh Eyes Review
-
-### Onboarding
-- [ ] Can I understand what this does without context?
-- [ ] Are there clear entry points?
-- [ ] Is the API intuitive?
-
-### Usage
-- [ ] Are error messages helpful?
-- [ ] Do I know what went wrong?
-- [ ] Is the happy path clear?
-
-### Consistency
-- [ ] Does this match the project's patterns?
-- [ ] Would a new user find this predictable?
-
-### Documentation
-- [ ] Is there enough context to use this?
-- [ ] Are assumptions documented?
-```
-
----
-
-## Example
-
-### Builder Brain (❌)
-```
-This function works correctly. It handles
-the edge cases I identified during implementation.
-```
-
-### Fresh Eyes (✅)
-```
-As a new user:
-- The parameter name "opts" is vague - what options?
-- No error message if I pass the wrong type
-- The return format isn't documented
-- The side effects aren't obvious
-```
-
----
-
-## Remember
-
-> Builder-brain misses what users see.
->
-> Fresh eyes catch friction.
->
-> Personas reveal truth.
+- Usuário pede "teste isso" ou "olhe como um usuário veria"
+- Feature de onboarding ou primeiro uso
+- Qualquer UI que o usuário vai usar sem documentação

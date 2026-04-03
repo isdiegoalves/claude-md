@@ -1,112 +1,29 @@
 # One Source of Truth
 
-> **Pattern:** Zero-shot Prompting | Clear constraint prevents data duplication
+**Technique:** Zero-shot Prompting — restrição direta que proíbe a solução mais tentadora para bugs de display.
 
----
+## Regra
 
-## The Rule
+Nunca corrija um problema de display duplicando dados ou estado. Uma fonte, todo o resto lê a partir dela.
 
-**Never fix a display problem by duplicating data or state.**
+Se você está tentado a copiar estado para corrigir um bug de renderização, está resolvendo o problema errado.
 
-One source. Everything else reads from it.
+## Por que isso importa
 
----
+Duplicação de estado é a causa mais comum de bugs de sincronização. Resolver um bug de display copiando dados cria dois bugs potenciais: o original pode retornar, e os dois estados podem divergir de formas inesperadas. A solução correta é sempre encontrar por que a fonte original não está sendo lida corretamente.
 
-## The Anti-Pattern
+## Perguntas de diagnóstico
 
-```typescript
-// ❌ WRONG: Duplicating state to fix a rendering bug
-const [items, setItems] = useState([]);
-const [displayItems, setDisplayItems] = useState([]); // Duplication!
+Quando tentado a duplicar estado, pergunte:
+1. Por que o componente não consegue ler diretamente da fonte?
+2. O problema é de derivação (precisa transformar os dados)?
+3. O problema é de timing (dados chegam tarde)?
+4. O problema é de escopo (dado está no lugar errado da árvore de estado)?
 
-// "Fixing" a display bug by copying state
-useEffect(() => {
-  setDisplayItems(items.filter(i => i.visible));
-}, [items]);
-```
+Cada uma dessas perguntas tem uma solução que não requer duplicação.
 
-**Problem:** You're solving the wrong problem.
+## Sinal de aplicação
 
----
-
-## The Right Solution
-
-```typescript
-// ✅ CORRECT: Single source, computed values
-const [items, setItems] = useState([]);
-
-// Derived from single source - no duplication
-const displayItems = useMemo(
-  () => items.filter(i => i.visible),
-  [items]
-);
-```
-
----
-
-## Zero-Shot Constraint
-
-The directive "One Source of Truth" acts as a **zero-shot prompt** that prevents:
-
-- State duplication
-- Sync bugs between copies
-- Inconsistent data states
-- Unnecessary complexity
-
----
-
-## When Tempted to Duplicate
-
-| Temptation | Correct Approach |
-|------------|-----------------|
-| "I need a filtered version" | Compute from source |
-| "I need a transformed version" | Compute from source |
-| "I need local state for UX" | Use the source, add UI state only |
-| "I need a cache" | Ensure cache invalidation is automatic |
-
----
-
-## The Test
-
-Ask yourself:
-
-1. **Is this data derived from somewhere else?** → Use a computed value
-2. **Could this get out of sync with the source?** → You're duplicating
-3. **Am I copying state to fix a bug?** → Fix the root cause
-
----
-
-## Examples
-
-### ❌ Duplication
-```typescript
-// Component with local copy
-function UserProfile({ user }) {
-  const [name, setName] = useState(user.name); // Duplication!
-
-  useEffect(() => {
-    setName(user.name); // Trying to sync
-  }, [user.name]);
-}
-```
-
-### ✅ Single Source
-```typescript
-// Read from source, transform as needed
-function UserProfile({ user }) {
-  // Direct from source
-  const displayName = useMemo(
-    () => user.name || 'Anonymous',
-    [user.name]
-  );
-}
-```
-
----
-
-## Remember
-
-> If you're tempted to copy state to fix a rendering bug,
-> you're solving the wrong problem.
->
-> Find the root cause. Keep one source.
+- Bug de display onde os dados "parecem certos" mas não renderizam
+- Tentação de copiar `props.X` para `state.X`
+- Tentação de manter uma segunda lista/array "por conveniência"

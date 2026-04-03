@@ -1,113 +1,28 @@
 # Tool Result Blindness
 
-> **Pattern:** Chain-of-Thought Prompting | Explicit reasoning about output limitations
+**Technique:** Chain-of-Thought Prompting — raciocinar explicitamente sobre possível truncamento antes de confiar em resultados de busca.
 
----
+## Regra
 
-## The Problem
+Resultados de ferramentas com mais de 50.000 caracteres são silenciosamente truncados para um preview de 2.000 bytes.
 
-Tool results over **50,000 characters** are silently truncated to a **2,000-byte preview**.
+Se qualquer busca ou comando retornar poucos resultados suspeitos: re-execute com escopo mais estreito (diretório único, glob mais restrito).
 
-You may be making decisions based on incomplete data.
+**Declare quando suspeitar de truncamento.**
 
----
+## Por que isso importa
 
-## The Mandate
+O agente não sabe que um resultado foi truncado — ele apenas vê o que foi entregue. Buscas que deveriam retornar 50 arquivos retornam 3, e o agente age como se os 3 fossem todos. Isso produz refactors incompletos e análises incorretas.
 
-**When any search or command returns suspiciously few results:**
+## Sinais de possível truncamento
 
-1. Re-run with narrower scope
-2. State when you suspect truncation occurred
-3. Verify with additional, more specific queries
+- Busca ampla retorna resultados anormalmente poucos
+- grep/glob em diretório grande retorna menos que o esperado
+- Output de comando termina abruptamente sem conclusão natural
 
----
+## Protocolo de verificação
 
-## Chain-of-Thought Analysis
-
-```
-1. RUN: Search or command
-   |
-   v
-2. EVALUATE: "Does this match expectations?"
-   |
-   +---> [Fewer results than expected]
-   |           |
-   |           v
-   |     3. SUSPECT: Truncation
-   |           |
-   |           v
-   |     4. MITIGATE: Narrow scope
-   |           |
-   |           v
-   |     5. RE-RUN: Specific query
-   |
-   +---> [Results match expectations]
-               |
-               v
-         6. PROCEED: With confidence
-```
-
----
-
-## Truncation Indicators
-
-| Sign | Likely Cause | Action |
-|------|--------------|--------|
-| Large search returns 10 results | Truncation | Narrow with specific path |
-| File glob missing expected files | Pattern too broad | Use stricter glob |
-| Grep results cut off mid-line | Output limit | Use head/tail with context |
-| "Suspiciously few results" | Silent truncation | Re-run with narrower scope |
-
----
-
-## Mitigation Strategies
-
-### 1. Narrow by Directory
-```bash
-# Instead of:
-grep -r "pattern" .
-
-# Use:
-grep -r "pattern" src/components/
-```
-
-### 2. Stricter Glob Patterns
-```bash
-# Instead of:
-**/*.ts
-
-# Use:
-src/**/*.service.ts
-```
-
-### 3. Use Offset and Limit
-```
-Read file with offset/limit for large files
-```
-
-### 4. Chain Specific Queries
-```bash
-# First: Find relevant files
-glob "src/**/*Controller.ts"
-
-# Then: Search within results
-grep "pattern" src/controllers/
-```
-
----
-
-## Required Transparency
-
-**Always state when truncation might have occurred:**
-
-> "Results seem truncated. Re-running with narrower scope..."
-
-> "Search returned fewer results than expected for this codebase size. Verifying..."
-
----
-
-## Remember
-
-> Silent truncation produces silent bugs.
->
-> Suspect, verify, then proceed.
+1. Suspeite quando resultados parecem poucos para o escopo da busca
+2. Re-execute com escopo reduzido (um diretório de cada vez)
+3. Compare contagens entre buscas para detectar divergência
+4. Declare explicitamente: "suspeito de truncamento — re-executando com escopo menor"

@@ -1,102 +1,29 @@
 # File System as State
 
-> **Pattern:** Chain-of-Thought Prompting | Progressive disclosure through file organization
+**Technique:** Prompt Chaining — usar o sistema de arquivos como memória persistente entre passos encadeados, reduzindo pressão sobre a janela de contexto.
 
----
+## Regra
 
-## The Principle
+O sistema de arquivos é a ferramenta de propósito geral mais poderosa disponível. Pare de manter tudo em contexto. Use ativamente:
 
-The file system is your most powerful general-purpose tool. Stop holding everything in context.
+### Leitura inteligente
+Não carregue arquivos grandes cegamente no contexto. Use bash para grep, search, tail e leitura seletiva. Busca agêntica (encontrar seu próprio contexto) supera carregamento passivo de contexto.
 
----
+### Resultados intermediários
+Escreva resultados intermediários em arquivos. Isso permite múltiplas passagens sobre um problema e ancora os resultados em dados reproduzíveis.
 
-## Active File System Usage
+### Processamento de dados grandes
+Para operações com dados grandes: salve no disco e use ferramentas bash (`grep`, `jq`, `awk`) para buscar e processar. O bash é o instrumento mais poderoso disponível — use para qualquer coisa que se beneficie de scripting, incluindo encadeamento de chamadas de API e processamento de logs.
 
-### 1. Selective Reading
+### Memória entre sessões
+Use o sistema de arquivos para memória entre sessões: escreva resumos, decisões e trabalho pendente em arquivos markdown que persistam.
 
-**Don't dump large files into context.**
+### Debugging reproduzível
+Ao debugar: salve logs e outputs em arquivos para verificar contra artefatos reproduzíveis.
 
-```bash
-# Use bash to grep, search, tail
-# Agentic search beats passive context loading
-```
+### Estrutura como contexto
+Habilite progressive disclosure: arquivos de referência podem apontar para outros arquivos. Estrutura reduz pressão de contexto. A própria estrutura de pastas é uma forma de context engineering.
 
-### 2. Write Intermediate Results
+## Por que isso importa
 
-```markdown
-## Analysis Results: [Task Name]
-
-### Files Affected
-- src/components/Button.tsx
-- src/utils/helpers.ts
-
-### Decisions
-1. [Decision made]
-
-### Next Steps
-1. [Step to take]
-```
-
-### 3. Process Large Data with Bash Tools
-
-```bash
-# Use grep, jq, awk for scripting
-grep "pattern" results.json | jq '.data[]'
-```
-
-### 4. Memory Across Sessions
-
-```markdown
-## Session Memory: [Topic]
-
-### Key Decisions
-- Decision 1
-
-### Pending Work
-- Task 1
-
-### References
-- [Link to file]
-```
-
-### 5. Debugging Artifacts
-
-```markdown
-## Debug Log: [Issue]
-
-### Error
-[Error message]
-
-### Attempts
-1. [Attempt 1]: [Result]
-```
-
-### 6. Progressive Disclosure
-
-```
-context-log.md
-  ├── references/
-  │     ├── decision-1.md
-  │     └── decision-2.md
-  └── summary.md
-```
-
----
-
-## File System Strategies
-
-| Strategy | Use Case |
-|----------|----------|
-| **Grep First** | Find relevant content before reading |
-| **Write Summaries** | Compact context for future reference |
-| **Chain Bash** | Process data without loading into context |
-| **Structured Directories** | Enable progressive disclosure |
-| **Log to Files** | Reproducible debugging artifacts |
-
----
-
-## Remember
-
-> The file system is your external memory.
->
-> Use it actively. Don't hoard context.
+Contexto em memória é volátil, limitado e sujeito a decay. O sistema de arquivos é persistente, ilimitado e indexável. O agente que usa arquivos como estado ativo consegue trabalhar em problemas muito maiores que sua janela de contexto.

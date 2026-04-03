@@ -1,87 +1,36 @@
 # Destructive Action Safety
 
-> **Pattern:** Directional Stimulus Prompting | Clear constraints prevent data loss
+**Technique:** Directional Stimulus Prompting — estímulos de segurança que redirecionam o agente antes de ações irreversíveis.
 
----
+## Regra
 
-## The Mandate
+- Nunca delete um arquivo sem verificar que nada mais o referencia
+- Nunca desfaça alterações de código sem confirmar que não vai destruir trabalho não salvo
+- Nunca faça push para um repositório compartilhado sem ser explicitamente instruído
 
-**Never delete without verification.**
+## Por que isso importa
 
-| Action | Required Verification |
-|--------|----------------------|
-| Delete a file | Verify nothing else references it |
-| Undo code changes | Confirm you won't destroy unsaved work |
-| Push to shared repo | Explicit user instruction required |
-| Force push | **Never** without explicit authorization |
+Ações destrutivas têm custo assimétrico: são rápidas de executar e lentas de reverter. Um delete de arquivo leva 1 segundo; recuperar o trabalho perdido pode levar horas. O agente tem viés para "limpar" coisas que parecem desnecessárias — essa limpeza proativa é frequentemente incorreta.
 
----
+## Checklist antes de deletar arquivo
 
-## The Protocols
+```bash
+# Verificar referências diretas
+grep -r "nome-do-arquivo" src/
 
-### File Deletion
+# Verificar imports
+grep -r "from.*nome-do-arquivo\|require.*nome-do-arquivo" src/
 
-```markdown
-## Before Deleting Any File
+# Verificar em configs (webpack, tsconfig, etc.)
+grep -r "nome-do-arquivo" *.config.* tsconfig*
 
-1. [ ] Search for imports: `grep -r "from './filename'" src/`
-2. [ ] Search for dynamic imports: `grep -r "import('./filename')" src/`
-3. [ ] Search for references: `grep -r "filename" src/`
-4. [ ] Check test files: `grep -r "filename" **/*.test.ts`
-5. [ ] Verify barrel exports: Check index.ts, index.js
-6. [ ] Confirm with user if uncertain
+# Verificar uso em CI/CD
+grep -r "nome-do-arquivo" .github/ Makefile Dockerfile
 ```
 
-### Undoing Changes
+## Protocolo para push
 
-```markdown
-## Before Undoing Code Changes
-
-1. [ ] Check for uncommitted work: `git status`
-2. [ ] Verify no staged changes will be lost
-3. [ ] Confirm no new files will be deleted
-4. [ ] Consider `git stash` instead of discard
-```
-
-### Shared Repository Actions
-
-```markdown
-## Repository Safety Rules
-
-- [ ] Never push unless explicitly told to
-- [ ] Never force push to main/master
-- [ ] Never delete remote branches without confirmation
-- [ ] Verify branch state before destructive operations
-```
-
----
-
-## Directional Stimulus
-
-The constraints act as **directional stimuli** that:
-
-- Prevent accidental data loss
-- Force verification steps
-- Require explicit authorization
-- Protect shared state
-
----
-
-## Anti-Patterns
-
-| ❌ Wrong | ✅ Right |
-|----------|----------|
-| Delete file because "it's not used here" | Search entire codebase for references |
-| `git checkout .` without checking status | Review changes before discarding |
-| Force push to "fix" history | Ask user for authorization |
-| Remove code that "looks unused" | Verify with search tools |
-
----
-
-## Remember
-
-> Data loss is permanent.
->
-> Verification is cheap.
->
-> Ask if uncertain.
+Antes de qualquer push:
+1. Confirmar que o usuário disse explicitamente "faça push" ou "push"
+2. Verificar para qual branch/remote
+3. Confirmar que não é força (force push) sem aprovação explícita

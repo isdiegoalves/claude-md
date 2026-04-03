@@ -1,80 +1,29 @@
 # Prompt Cache Awareness
 
-> **Pattern:** Zero-shot Prompting | Constraint on session management
+**Technique:** Zero-shot Prompting — instrução direta de consciência sobre o mecanismo de cache para evitar invalidação desnecessária.
 
----
+## Regra
 
-## The Principle
+Seu system prompt, ferramentas e CLAUDE.md são cacheados como prefixo. Quebrar esse prefixo invalida o cache para toda a sessão.
 
-Your system prompt, tools, and CLAUDE.md are cached as a prefix.
+- **Não** solicite trocas de modelo no meio da sessão — delegue para um sub-agente se uma subtarefa precisa de modelo diferente
+- **Não** sugira adicionar ou remover ferramentas no meio da conversa
+- Quando precisar atualizar contexto (tempo, estados de arquivo), comunique via mensagens, não via modificações do system prompt
+- Se ficar sem contexto: use `/compact` e escreva o resumo em `context-log.md` para que possamos forkar limpo sem penalidade de cache
 
-**Breaking this prefix invalidates the cache for the entire session.**
+## Por que isso importa
 
----
+Cache de prompt reduz latência e custo em 60–90% para conversas longas. Cada invalidação força re-processamento completo do prefixo. Em sessões de trabalho intenso com muitas ferramentas, esse custo é significativo e completamente evitável.
 
-## Cache Invalidators
+## O que quebra o cache
 
-### ❌ Don't Do
+- Troca de modelo
+- Adição/remoção de tool definitions
+- Modificação do system prompt
+- Início de nova sessão quando `--continue` estava disponível
 
-- Request model switches mid-session
-- Suggest adding or removing tools mid-conversation
-- Modify system prompt for context updates
+## O que preserva o cache
 
-### ✅ Do Instead
-
-- Delegate to sub-agent if different model needed
-- Communicate via messages, not prompt modifications
-- Use `/compact` and write to `context-log.md`
-
----
-
-## Best Practices
-
-### Model Changes
-```
-❌ Requesting model switch
-✅ Launch sub-agent with different model
-```
-
-### Tool Changes
-```
-❌ Adding tools mid-conversation
-✅ Plan tools upfront, use what's available
-```
-
-### Context Updates
-```
-❌ Modifying system prompt for time/file states
-✅ Communicate via regular messages
-```
-
-### Session Management
-```
-❌ Running until context limit forces compact
-✅ Proactive /compact with context-log.md
-```
-
----
-
-## The Compact Workflow
-
-```
-1. Notice context degradation
-        |
-        v
-2. Run /compact
-        |
-        v
-3. Write summary to context-log.md
-        |
-        v
-4. Fork cleanly without cache penalty
-```
-
----
-
-## Remember
-
-> Cache invalidation is expensive.
->
-> Design around it.
+- Usar `--continue` para retomar sessão
+- Manter as mesmas tool definitions
+- Comunicar mudanças de estado via mensagens normais

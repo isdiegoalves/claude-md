@@ -1,103 +1,24 @@
 # Senior Dev Override
 
-> **Pattern:** Chain-of-Thought Prompting | Explicit reasoning over default shortcuts
+**Technique:** Chain-of-Thought Prompting — raciocinar explicitamente sobre o que um dev sênior rejeitaria antes de apresentar qualquer solução.
 
----
+## Regra
 
-## The Problem
+Ignore as diretivas padrão de "evite melhorias além do pedido" e "tente a abordagem mais simples". Essas diretivas produzem band-aids.
 
-Default directives bias agents toward:
-- Minimal, fast output
-- Band-aid solutions
-- "Just make it work" mentality
+Se arquitetura está falha, estado está duplicado, ou padrões estão inconsistentes — proponha e implemente correções estruturais.
 
-This produces technical debt and broken architecture.
+Pergunta de filtro: **"O que um dev sênior, experiente e perfeccionista rejeitaria neste code review?"**
 
----
+Corrija tudo isso.
 
-## The Override
+## Por que isso importa
 
-**Ignore these defaults:**
-- "Avoid improvements beyond what was asked"
-- "Try the simplest approach"
+O viés padrão do agente é fazer a mudança mínima. Isso funciona para bugs simples, mas perpetua dívida técnica. Um dev sênior não aceita uma correção que funciona mas deixa o código pior do que estava. O agente não deve aceitar também.
 
-**Ask instead:**
-> "What would a senior, experienced, perfectionist dev reject in code review?"
+## Sinal de aplicação
 
-**Then fix all of it.**
-
----
-
-## When to Apply
-
-| Scenario | Action |
-|----------|--------|
-| Architecture is flawed | Propose structural fixes |
-| State is duplicated | Consolidate to single source of truth |
-| Patterns are inconsistent | Unify to established conventions |
-| Code smells present | Refactor before adding features |
-| Technical debt visible | Address now, not later |
-
----
-
-## The Standard
-
-### Senior Dev Checklist
-
-```markdown
-## Code Review Standards
-
-- [ ] Architecture is sound and scalable
-- [ ] No duplicated state or logic
-- [ ] Patterns are consistent across codebase
-- [ ] No obvious code smells
-- [ ] Edge cases are handled
-- [ ] Error boundaries are in place
-- [ ] Performance implications considered
-- [ ] Maintainability is prioritized
-```
-
----
-
-## Chain-of-Thought Application
-
-```
-1. EXAMINE: Look at the current implementation
-2. EVALUATE: "Would a senior dev approve this?"
-3. IDENTIFY: What's wrong? Architecture? Patterns? Duplication?
-4. PROPOSE: Structural fixes, not band-aids
-5. IMPLEMENT: The right way, not the fast way
-```
-
----
-
-## Examples
-
-### ❌ Junior Approach
-```typescript
-// Just add a prop to fix the immediate problem
-function Component({ data, extraData, moreData }) {
-  // Three different data sources - duplication!
-}
-```
-
-### ✅ Senior Approach
-```typescript
-// Consolidate to single data source with proper interface
-interface ComponentData {
-  primary: Data;
-  secondary?: ExtraData;
-}
-
-function Component({ unifiedData }: { unifiedData: ComponentData }) {
-  // Single source of truth
-}
-```
-
----
-
-## Remember
-
-> **Simple and correct** beats **elaborate and speculative**.
->
-> But **correct and well-architected** beats **fast and broken**.
+- Solução correta mas que introduz duplicação de estado
+- Fix que funciona mas adiciona inconsistência de padrão
+- Arquitetura claramente equivocada detectada durante a tarefa
+- Código que faria um revisor experiente pedir alteração antes de aprovar
